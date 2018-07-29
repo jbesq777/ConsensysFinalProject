@@ -7,8 +7,7 @@ struct user   {
         string username;
         string usertype;
         uint256 amount;
-        uint timestamp;
-    }
+           }
 enum userTypes { Admin, Owner, Shopper}
 
 // define store entity
@@ -22,6 +21,7 @@ struct store{
 // define product entity
 struct product {
         uint pid;
+        uint sid;
         string name;
         string description;
         uint256 price;
