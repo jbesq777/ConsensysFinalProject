@@ -1,25 +1,47 @@
 pragma solidity ^0.4.17;
+//npm install -E openzeppelin-solidity
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
-contract MarketPlace {
+contract MarketPlace is Ownable {
+   /** MarketPlace 
+   The central marketplace is managed by a group of administrators.
+    Admins allow store owners to add stores to the marketplace. 
+    Store owners can manage their store’s inventory and funds.
+    Shoppers can visit stores and purchase goods that are in stock using cryptocurrency */
+
+   // Assigned at the construction
+   // phase, where `msg.sender` is the account
+   // creating this contract.
+    using SafeMath for uint;
+    uint public creationTime = now;
 
     address owner; /* Owner of contract */
-
-    modifier ownerRestricted {
-      require(owner == msg.sender);
-      _;
-   } 
-
     constructor() public
      {
-         owner = msg.sender;
-         createUser( msg.sender, "Admin", 0,1);
-         emit log("owner = msg.sender");
-     }
+    // Assigned at the construction
+    // phase, create ADMIN user as the where `msg.sender` is the account
+    // creating this contract.
+    //
+        owner = msg.sender;
+        createUser(msg.sender, "Admin", 0, 0);
+        emit log("owner = msg.sender");
+    }
 
-    function destroyContract() ownerRestricted {
-     selfdestruct(owner);
-   }
+    modifier ownerRestricted {
+        require(owner == msg.sender, "restricted feature");
+        _;
+        // the "_;"!  will
+        // be replaced by the actual function
+        // body when the modifier is used.
+    } 
 
+    function destroyContract() external ownerRestricted {
+        selfdestruct(owner);
+    }
+
+   // Stucture for a user
+    
     struct user
     {
         uint uid;
@@ -74,6 +96,8 @@ contract MarketPlace {
     mapping(address => uint[]) public UserOwnerMap;
     mapping(address => uint[]) public StoreOwnerMap;
     mapping(address => uint[]) public ProductOwnerMap;
+    mapping(uint => uint[]) public StoreProductMap;
+    mapping(address => uint[]) public OrderOwnerMap;
 
     user[] public users;                    /* Array of user structures i.e. users */
     store[] public stores;                  /* Array of store structures i.e. stores */
@@ -81,6 +105,7 @@ contract MarketPlace {
     storeproduct[] public storeproducts;    /* Array of product in a store */
     order[] public orders;                  /* Array of order of product in a store by a user */
 
+    // onlyAdministrator
     modifier onlyAdministrator (address sid)
     {
     /*
@@ -93,7 +118,7 @@ contract MarketPlace {
     */
         _;
     }
-
+    // list all of the events and what we need to know about them
     event throwError(string message);
     event log(string message);
     event userCreated(uint uid, address user, string username, uint8 usertype, uint256 amount, uint timestamp);
@@ -105,6 +130,10 @@ contract MarketPlace {
     event storeproductCreated(uint spid, uint sid, uint pid, uint256 price,uint256 qty_avail);
     event orderCreated (uint oid, uint uid, uint sid, uint pid, uint256 price,uint256 qty);
   
+    // these functions facilitate the CRUD for the MArketPlace Bill of Materials
+    // The BOM includes users: Admins and Store Owners
+    //                  stores, products and orders
+
     function createUser( address _user, string _username, uint8 _usertype, uint256 _amount) public returns (uint id)
     {
         id = users.length++;
@@ -167,9 +196,27 @@ contract MarketPlace {
         store memory temp = stores[idx];
         return (temp.sid, temp.owner, temp.name, temp.description, temp.amount);
     }
+
     function getStoreCount() public view returns (uint)
     {
         return stores.length;
+    }
+
+    function getStoreForOwner(address _owner, uint idx) public view returns (uint, address, string, string, uint256)
+    {
+        if (getStoreCountForOwner(_owner) >= idx)
+        {
+            return getStore(StoreOwnerMap[_owner][idx]);
+        }
+        else
+        {
+            revert("store index does not exist for this owner!");
+        }
+    }
+
+    function getStoreCountForOwner(address _owner) public view returns (uint)
+    {
+        return StoreOwnerMap[_owner].length;
     }
 
     function createProduct( address _owner, string _name, string _description, string _imgsrc ) public returns (uint id)
@@ -210,7 +257,24 @@ contract MarketPlace {
         return products.length;
     }
     
-    function createStoreProduct( address _sowner, uint _sid, uint _pid, uint256 _price, uint256 _qty_avail) public returns (uint id)
+    function getProductForOwner(address _owner, uint idx) public view returns ( uint, address, string, string, string )
+    {
+        if (getProductCountForOwner(_owner) >= idx)
+        {
+            return getProduct(ProductOwnerMap[_owner][idx]);
+        }
+        else
+        {
+            revert("product index does not exist for this owner!");
+        }
+    }
+
+    function getProductCountForOwner(address _owner) public view returns (uint)
+    {
+        return ProductOwnerMap[_owner].length;
+    }
+
+    function createStoreProduct( uint _sid, uint _pid, uint256 _price, uint256 _qty_avail) public returns (uint id)
     {
         id = storeproducts.length++;
         storeproduct storage newStoreProduct = storeproducts[id];
@@ -219,7 +283,8 @@ contract MarketPlace {
         newStoreProduct.spid = id;
         newStoreProduct.price = _price;
         newStoreProduct.qty_avail = _qty_avail;
-        ProductOwnerMap[_sowner].push(id);
+        newStoreProduct.status = productStatus(0);
+        StoreProductMap[_sid].push(id);
         emit storeproductCreated(id, newStoreProduct.sid, newStoreProduct.pid, newStoreProduct.price, newStoreProduct.qty_avail);
         return id;
     }
@@ -233,6 +298,24 @@ contract MarketPlace {
     function getStoreProductCount() public view returns (uint)
     {
         return storeproducts.length;
+    }
+
+    // return the StoreProduct for the provided store and storeproduct index
+    function getStoreProductForStore(uint _sid, uint _idx) public view returns ( uint, uint, uint, uint256, uint256)
+    {
+        if (getStoreProductCountForStore(_sid) >= _idx)
+        {
+            return getStoreProduct(StoreProductMap[_sid][_idx]);
+        }
+        else
+        {
+            revert("store productindex does not exist for this owner!");
+        }
+    }  
+
+    function getStoreProductCountForStore(uint _sid) public view returns (uint)
+    {
+        return StoreProductMap[_sid].length;
     }
 
     function createOrder( address _sowner, uint _uid, uint _sid, uint _pid, uint256 _price, uint256 _qty) public returns (uint id)

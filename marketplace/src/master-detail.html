@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Master-Detail Pattern</title>
+    <meta name="viewport" content="width=device-width">
+    <link href="css/master-detail.css" rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <main>
+        <div class="page" id="info">
+            <p>If this were really a Single Page Application we would be hiding all but one of the div "pages" at all times.</p>
+        </div>
+       
+        <div class="page" id="master">
+            <header>
+                <h1>MASTER detail</h1>    
+            </header>
+            <main>
+                <ul class="master-list"></ul>
+            </main>
+        </div>
+
+        <div class="page" id="detail">
+            <header>
+                <h1>master DETAIL</h1>
+            </header>
+            <main>
+                <ul class="detail-list"></ul>
+            </main>
+        </div>
+    </main>
+    <script src="js/master-detail.js"></script>
+</body>
+</html>

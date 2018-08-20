@@ -138,20 +138,20 @@ body {
     background-color: white;
 }
 
-#markeyRow h1 {
+#marketRow h1 {
     text-align: center;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 #statusRow {
     background-color: #f2f2f2;
 }
 
-#statusRow h1 {
+#statusRow h3 {
     text-align: center;
-    margin-top: 60px;
-    margin-bottom: 60px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .faq {
@@ -160,4 +160,64 @@ body {
 
 .faqquestion {
     font-weight: bold;
+}
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+html{
+    /* font-size: 20px; */
+    font-family: sans-serif;
+    line-height: 1.6;
+    background-color: white;
+}
+
+main{
+    display: flex;
+    justify-content: space-around;
+}
+
+.page{
+    display: block;
+    padding: 1rem;
+    margin: 1rem;
+    background-color: #dedede;
+}
+h1{
+    padding:0.5rem 2rem;
+}
+#detail h1{
+    cursor: pointer;
+}
+
+.store{
+    list-style: none;
+    border-top: 1px solid #999;
+    padding: 0.2rem 1rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.store:hover,
+.store.selected{
+    background-color: aliceblue;
+}
+
+.store:last-child{
+    border-bottom: 1px solid #999;
+}
+
+.lastAccess{
+    color:lightskyblue;
+}
+
+/* odd table rows are white (even rows default to page background) */
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: white;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd):hover,
+.table-striped > tbody > tr:nth-of-type(odd).selected {
+    background-color: aliceblue;
 }
