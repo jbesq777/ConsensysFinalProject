@@ -1,7 +1,7 @@
 pragma solidity ^0.4.17;
 //npm install -E openzeppelin-solidity
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
-import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract MarketPlace is Ownable {
    /** MarketPlace 
