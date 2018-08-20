@@ -1,7 +1,7 @@
 {
-  "name": "pet-shop",
+  "name": "marketplace",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is the MarketPlace project and is designed to run a decentralized marketplace for store owners to create stores, add products to a store and price them accordingly. Shoppers are then able to buy products and pay using a cryptocurrency wallet.",
   "main": "truffle.js",
   "directories": {
     "test": "test"
@@ -14,5 +14,17 @@
   "license": "ISC",
   "devDependencies": {
     "lite-server": "^2.3.0"
-  }
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "1.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pallen777/marketplace.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/pallen777/marketplace/issues"
+  },
+  "homepage": "https://github.com/pallen777/marketplace#readme"
 }
