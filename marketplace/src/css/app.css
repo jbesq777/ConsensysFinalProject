@@ -221,3 +221,8 @@ h1{
 .table-striped > tbody > tr:nth-of-type(odd).selected {
     background-color: aliceblue;
 }
+
+
+#createstoreproduct,#updatestoreproduct {
+    display: none;
+}

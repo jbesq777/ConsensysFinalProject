@@ -40,8 +40,9 @@ contract MarketPlace is Ownable {
         selfdestruct(owner);
     }
 
-   // Stucture for a user
-    
+    mapping (address => uint) balance;
+
+    // Structure for a user
     struct user
     {
         uint uid;
@@ -86,8 +87,9 @@ contract MarketPlace is Ownable {
     struct order
     {
         uint oid;
-        uint uid;
+        // uint uid;
         uint sid;
+        uint spid;
         uint pid;
         uint256 price;
         uint256 qty;
@@ -127,7 +129,8 @@ contract MarketPlace is Ownable {
     event storeUpdated(uint sid, string name, string description, uint timestamp);
     event productCreated(uint pid, address owner, string name, string description, string imgsrc);
     event productUpdated(uint pid, string name, string description, string imgsrc, uint timestamp);
-    event storeproductCreated(uint spid, uint sid, uint pid, uint256 price,uint256 qty_avail);
+    event storeproductCreated(uint spid, uint sid, uint pid, uint256 price, uint256 qty_avail);
+    event storeproductUpdated(uint spid, uint sid, uint pid, uint256 price, uint256 qty_avail, uint status, uint timestamp);
     event orderCreated (uint oid, uint uid, uint sid, uint pid, uint256 price,uint256 qty);
   
     // these functions facilitate the CRUD for the MArketPlace Bill of Materials
@@ -274,7 +277,7 @@ contract MarketPlace is Ownable {
         return ProductOwnerMap[_owner].length;
     }
 
-    function createStoreProduct( uint _sid, uint _pid, uint256 _price, uint256 _qty_avail) public returns (uint id)
+    function createStoreProduct( uint _sid, uint _pid, uint256 _price, uint256 _qty_avail, uint8 _status) public returns (uint id)
     {
         id = storeproducts.length++;
         storeproduct storage newStoreProduct = storeproducts[id];
@@ -283,16 +286,29 @@ contract MarketPlace is Ownable {
         newStoreProduct.spid = id;
         newStoreProduct.price = _price;
         newStoreProduct.qty_avail = _qty_avail;
-        newStoreProduct.status = productStatus(0);
+        newStoreProduct.status = productStatus(_status);
         StoreProductMap[_sid].push(id);
         emit storeproductCreated(id, newStoreProduct.sid, newStoreProduct.pid, newStoreProduct.price, newStoreProduct.qty_avail);
         return id;
     }
     
-    function getStoreProduct(uint idx) public view returns ( uint, uint, uint, uint256, uint256)
+    function updateStoreProduct( uint _spid, uint _sid, uint _pid, uint256 _price, uint256 _qty_avail, uint8 _status)
+        public returns (bool success)
+    {
+        /* Only allow changes to price, qty_avail, and status */
+        require(storeproducts[_spid].sid == _sid, "store id mismatch during updateStoreProduct()");
+        require(storeproducts[_spid].pid == _pid, "product id mismatch during updateStoreProduct()");
+        storeproducts[_spid].price = _price;
+        storeproducts[_spid].qty_avail = _qty_avail;
+        storeproducts[_spid].status = productStatus(_status);
+        emit storeproductUpdated(_spid, _sid, _pid, _price, _qty_avail, (uint8)(_status), now);
+        return true;
+    }
+    
+    function getStoreProduct(uint idx) public view returns ( uint, uint, uint, uint256, uint256, uint8)
     {
         storeproduct memory temp = storeproducts[idx];
-        return (temp.spid, temp.sid,temp.pid, temp.price, temp.qty_avail);
+        return (temp.spid, temp.sid, temp.pid, temp.price, temp.qty_avail, uint8(temp.status));
     }  
 
     function getStoreProductCount() public view returns (uint)
@@ -301,7 +317,7 @@ contract MarketPlace is Ownable {
     }
 
     // return the StoreProduct for the provided store and storeproduct index
-    function getStoreProductForStore(uint _sid, uint _idx) public view returns ( uint, uint, uint, uint256, uint256)
+    function getStoreProductForStore(uint _sid, uint _idx) public view returns ( uint, uint, uint, uint256, uint256, uint)
     {
         if (getStoreProductCountForStore(_sid) >= _idx)
         {
@@ -309,7 +325,7 @@ contract MarketPlace is Ownable {
         }
         else
         {
-            revert("store productindex does not exist for this owner!");
+            revert("store product index does not exist for this store!");
         }
     }  
 
@@ -318,28 +334,36 @@ contract MarketPlace is Ownable {
         return StoreProductMap[_sid].length;
     }
 
-    function createOrder( address _sowner, uint _uid, uint _sid, uint _pid, uint256 _price, uint256 _qty) public returns (uint id)
+    function createOrder( address _owner, uint _sid, uint _spid, uint _pid, uint256 _price, uint256 _qty) public returns (uint id)
     {
+        log0("createOrder #1");
         id = orders.length++;
+        log0("createOrder #2");
         order storage newOrder = orders[id];
-        newOrder.uid = _uid;
+        log0("createOrder #3");
         newOrder.sid = _sid;
+        log0("createOrder #4");
+        newOrder.spid = _spid;
+        log0("createOrder #5");
         newOrder.pid = _pid;
+        log0("createOrder #6");
         newOrder.oid = id;
+        log0("createOrder #7");
         newOrder.price = _price;
+        log0("createOrder #8");
         newOrder.qty = _qty;
-        ProductOwnerMap[_sowner].push(id);
-        emit orderCreated(id, newOrder.uid, newOrder.sid, newOrder.pid, newOrder.price, newOrder.qty);
+        log0("createOrder #9");
+        OrderOwnerMap[_owner].push(id);
+        log0("createOrder #10");
+        emit orderCreated(id, newOrder.sid, newOrder.spid, newOrder.pid, newOrder.price, newOrder.qty);
+        log0("createOrder #11");
         return id;
     }
     
     function getOrder(uint idx) public view returns ( uint, uint, uint, uint, uint256, uint256)
     {
         order memory temp = orders[idx];
-        //  product name and description temp.pid 
-        //  store info temp.sid 
-        //  user info  temp.uid 
-        return (temp.uid, temp.oid, temp.sid, temp.pid, temp.price, temp.qty);
+        return (temp.oid, temp.sid, temp.spid, temp.pid, temp.price, temp.qty);
     } 
 
     function getOrderCount() public view returns (uint)
@@ -347,14 +371,93 @@ contract MarketPlace is Ownable {
         return orders.length;
     } 
 
-    // function sellProduct(uint pid, uint sid, uint qty) public view returns ( uint)
-    // {
-    //   //getStoreProduct (_sid, _pid);
-    //   // ensure we have at least 1 
-    //   //createOrder( _sowner, _uid , _sid, _pid, _price, _qty)
-    //   // decrease inventory by 1
-    //   // decrease sellers wallet by price
-    //   // increase store owners wallet by price
-    // }                       
+    function sellProduct(uint sid, uint spid, uint pid, uint qty) public payable returns (uint)
+    {
+        // ensure store product id is within array boundary 
+        log0("sellProduct #1");
+        require(spid >= 0 && spid <= storeproducts.length, "store product id does not exist");
+        // get store product
+        log0("sellProduct #2");
+        storeproduct memory temp = storeproducts[spid];
+        // ensure store id matches 
+        log0("sellProduct #3");
+        require (temp.sid == sid, "store id does not match");
+        // ensure at least 1 available 
+        log0("sellProduct #4");
+        require (temp.qty_avail > 0, "insufficient inventory of store product");
+        // calculate transaction amount
+        log0("sellProduct #5");
+        uint transAmount = qty * storeproducts[spid].price;
+        // ensure buyer has sufficient funds 
+        log0("sellProduct #6");
+        require (balance[msg.sender] >= transAmount, "buyer has insufficient funds");
+        // decrease inventory by 1
+        log0("sellProduct #7");
+        storeproducts[spid].qty_avail -= 1;
+        // decrease buyers wallet by transaction amount
+        log0("sellProduct #8");
+        balance[msg.sender].sub(transAmount);
+        // increase store amount by transaction amount
+        log0("sellProduct #9");
+        stores[sid].amount.add(transAmount);
+        /**
+        
+    */
+        // create the order
+        log0("sellProduct #10");
+        return createOrder(msg.sender, sid, spid, pid, temp.price, qty);
+    }                       
 
+    function withdraw(uint sid, uint256 amount) public payable returns (bool success)
+    {
+        // ensure message is from store owner
+        require(stores[sid].owner == msg.sender, "must be owner of store");
+        // ensure store has requested funds
+        require(stores[sid].amount >= amount, "amount greater than store value");
+        // decrease stores wallet by transaction amount
+        stores[sid].amount.sub(amount);
+        // increase callers wallet by transaction amount
+        balance[msg.sender].add(amount);
+        return true;
+    }
+
+    function mul(uint256 _a, uint256 _b) internal pure returns (uint256 c) {
+        // Gas optimization: this is cheaper than asserting 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
+        if (_a == 0) {
+            return 0;
+        }
+
+        c = _a * _b;
+        assert(c / _a == _b);
+        return c;
+    }
+
+    /**
+    * @dev Integer division of two numbers, truncating the quotient.
+    */
+    function div(uint256 _a, uint256 _b) internal pure returns (uint256) {
+        // assert(_b > 0); // Solidity automatically throws when dividing by 0
+        // uint256 c = _a / _b;
+        // assert(_a == _b * c + _a % _b); // There is no case in which this doesn't hold
+        return _a / _b;
+    }
+
+    /**
+    * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
+    */
+    function sub(uint256 _a, uint256 _b) internal pure returns (uint256) {
+        assert(_b <= _a);
+        return _a - _b;
+    }
+
+    /**
+    * @dev Adds two numbers, throws on overflow.
+    */
+    function add(uint256 _a, uint256 _b) internal pure returns (uint256 c) {
+        c = _a + _b;
+        assert(c >= _a);
+        return c;
+    }
 }

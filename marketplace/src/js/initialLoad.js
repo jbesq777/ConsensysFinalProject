@@ -29,11 +29,11 @@ function start()
     }
     web3 = new Web3(web3Provider);
 
-    $.getJSON('MarketPlace.json', function(data)
-    {
-      console.log("Getting MarketPlace contract file");
-      MarketPlaceArtifact = data;
-    }).then(getContract);
+    //$.getJSON('MarketPlace.json', function(data)
+    //{
+     // console.log("Getting MarketPlace contract file");
+     // MarketPlaceArtifact = data;
+    //}).then(getContract);
 };
 
 function getContract()
@@ -63,104 +63,39 @@ function getContract()
 
 function callCommonFunctions()
 {
-  updateNetworkInfo();
-  updateBlockNumber();
-  // call page specific functions
+  
+  //updateBlockNumber();
+  loadOwner();
   callFunctions();
 };
 
-function updateNetworkInfo()
+function loadOwner()
 {
-    // var owner = document.getElementById("owner");
-    // if (owner)
-    // {
-    //   owner.innerHTML = getContractOwner();
-    // }
-    var address = document.getElementById("address");
-    if (address)
-    {
-      console.log("Updating network information");
-      address.innerHTML = account;
-    }
-    var ethBalance = document.getElementById("ethBalance");
-    if (ethBalance)
-    {
-      web3.eth.getBalance(account, function(err, bal)
-      {
-        ethBalance.innerHTML = web3.fromWei(bal, "ether") + " ETH";
-      });
-    }
-
-    var withdrawBalance = document.getElementById("withdrawBalance");
-    if (withdrawBalance)
-    {
-      if (typeof MarketPlaceContract != 'undefined' && typeof account != 'undefined')
-      {
-        web3.eth.getBalance(MarketPlaceContract.address, function(err, bal) 
-        {
-            console.log("contract balance: " + bal);
-        });
-      }
-      else
-      {
-          $("#withdrawButton").hide();
-      }
-    }
-  
-    var network = document.getElementById("network");
-    if (network)
-    {
-      var provider = web3.version.getNetwork(function(err, net)
-      {
-        var networkDisplay;
-        if (net == 1) 
-        {
-          networkDisplay = "Ethereum MainNet";
-        }
-        else if (net == 2)
-        {
-          networkDisplay = "Morden TestNet";
-        }
-        else if (net == 3)
-        {
-          networkDisplay = "Ropsten TestNet";
-        }
-        else
-        {
-          networkDisplay = net;
-        }
-        network.innerHTML = networkDisplay;
-      });
-    }
-};
-
-function setStatus(message, category)
-{
-  var status = document.getElementById("statusMessage");
-  status.innerHTML = message;
-  var panel = $("#statusPanel");
-  panel.removeClass("panel-warning");
-  panel.removeClass("panel-danger");
-  panel.removeClass("panel-success");
-
-  if (category === "warning")
+  if (typeof MarketPlaceContract != 'undefined' && typeof account != 'undefined')
   {
-    panel.addClass("panel-warning");
+    setStatus("Loading Owners...", "warning");
+//
+//var account = accounts[0];
+  var username;
+  var usertype;
+  var useramt;
+
+//$.getJSON('../owners.json', function(data) 
+var data = require("../owners.json");{
+      for (i = 0; i < data.length; i ++) {
+        account = accounts[0];
+        username = data[i].username;
+        usertype =  data[i].usertype;
+        useramt =  data[i].amount;
+        MarketPlaceContract.createOwner			(account,username,usertype,useramt).then(function(txId)
+    {
+      setStatus("Withdraw finished.");
+      
+    });
   }
-  else if (category === "error")
-  {
-    panel.addClass("panel-danger");
-  }
-  else
-  {
-    panel.addClass("panel-success");
-  }    
-};
+}
 
-function setInfo(message)
-{
-  var infoPanelText = document.getElementById("infoPanelText");
-  infoPanelText.innerHTML = message;
+ }
 };
 
 function withdraw()
@@ -168,32 +103,16 @@ function withdraw()
   if (typeof MarketPlaceContract != 'undefined' && typeof account != 'undefined')
   {
     setStatus("Withdrawing fund...", "warning");
-    showSpinner();
+   
     
     MarketPlaceContract.withdrawRefund({from:account, gas:500000}).then(function(txId)
     {
       setStatus("Withdraw finished.");
-      hideSpinner();
-      updateNetworkInfo();
+      
     });
   }
 };
 
-function updateInfoBox(html) 
-{
-  var infoBox = document.getElementById("infoPanelText");
-  infoBox.innerHTML = html;
-};
-
-function hideSpinner()
-{
-  $("#spinner").hide();
-};
-
-function showSpinner()
-{
-  $("#spinner").show();
-};
 
 function updateBlockNumber()
 {
@@ -231,12 +150,6 @@ function watchEvents()
   });
 };
 
-function getUrlParameter(name) {
-  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-  var results = regex.exec(location.search);
-  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-};
 
 function getContractOwner()
 {
@@ -246,12 +159,3 @@ function getContractOwner()
     return address;
   });
 };
-
-
-$(function() 
-{
-  $(window).load(function() 
-  {
-   start();
-  });
-});

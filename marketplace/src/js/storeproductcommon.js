@@ -88,10 +88,11 @@ let showStoreProducts = function(ev){
   // highlight target's parentElement (i.e., the whole row)
   ev.target.parentElement.classList.add('selected');
   
-  let activeStore = storesArray[store_id];
-  let ul = document.querySelector('.storeProduct-list');
-  ul.innerHTML = ""; //clear old data
-  let df = document.createDocumentFragment();
+  // let activeStore = storesArray[store_id];
+  // let ul = document.querySelector('.storeProduct-list');
+  // ul.innerHTML = ""; //clear old data
+  // let df = document.createDocumentFragment();
+
   // get logged in user (account)
   account = accounts[0];
   // load the store product list
@@ -149,6 +150,7 @@ function waitAndRefreshProductsForStore(_sid, count)
         let tr = document.createElement('tr');
         tr.className = 'store';
         tr.setAttribute('data-key', spid);
+        tr.addEventListener('click', loadStoreProductForm2);
 
         let td1 = document.createElement('td');
         td1.textContent = spid;
@@ -320,16 +322,21 @@ function waitAndRefreshProducts2(count)
  * the store product fields with defaults for new fields.
 */
 let loadStoreProductForm = function(ev){
-    let storerow = document.querySelector('.selected');
+  let storerow = document.querySelector('.selected');
+  if (storerow)
+  {
     let store_id = storerow.getAttribute('data-key');
     let product_id = ev.target.getAttribute('data-key');
     console.log("clicked on product_id "+product_id+ " for store_id "+store_id);
+    var sid        = document.getElementById("pid");
     var id         = document.getElementById("pid");
     var name       = document.getElementById("name");
     var desc       = document.getElementById("desc");
     var imgsrc     = document.getElementById("imgsrc");
-    // var address    = document.getElementById("address");
-if (storeProductExistsInStore(product_id))
+    var price      = document.getElementById("price");
+    var qty_avail  = document.getElementById("qty_avail");
+    var status     = document.getElementById("status");
+    if (storeProductExistsInStore(product_id))
     {
         console.log("Product is in the store already");
         alert("Product is in the store already");
@@ -337,18 +344,101 @@ if (storeProductExistsInStore(product_id))
         name.innerHTML = "";
         desc.innerHTML     = "";
         imgsrc.innerHTML   = "";
+        price.value       = 0;
+        qty_avail.value   = 0;
+        status.value      = 0;
+
+        // show/hide buttons
+        setElementByIdDisplay("createstoreproduct","none");
+        setElementByIdDisplay("updatestoreproduct","none");
     }
     else
     {
         console.log("Product can be added to store!");
         var productEntity = productsArray[product_id];
-        id.innerHTML   = productEntity[9];
-        name.innerHTML = productEntity[2];
-        desc.innerHTML     = productEntity[3];
-        imgsrc.innerHTML   = productEntity[4];
-        // address.innerHTML = productEntity[1];
+        sid.innerHTML     = store_id;
+        id.innerHTML      = productEntity[9];
+        name.innerHTML    = productEntity[2];
+        desc.innerHTML    = productEntity[3];
+        imgsrc.innerHTML  = productEntity[4];
+        price.value       = 0;
+        qty_avail.value   = 0;
+        status.value      = 0;
+
+        // show/hide buttons
+        setElementByIdDisplay("createstoreproduct","block");
+        setElementByIdDisplay("updatestoreproduct","none");
     
     }
+  }
+  else
+  {
+    alert("Select a store before selecting a product.");
+  }
+}
+
+/*
+ * User has clicked on store product and this function loads
+ * the store product fields and enables correct action buttons.
+*/
+let loadStoreProductForm2 = function(ev){
+  let storerow = document.querySelector('.selected');
+  if (storerow)
+  {
+    let store_id = storerow.getAttribute('data-key');
+    let storeProduct_id = ev.target.getAttribute('data-key');
+    let elmchildren = ev.target.parentElement.children;
+    let product_id = elmchildren[2].innerHTML;    //pid
+    console.log("clicked on spid "+storeProduct_id+ ", pid "+product_id+" for store_id "+store_id);
+    var spid       = document.getElementById("spid");
+    var sid        = document.getElementById("sid");
+    var pid        = document.getElementById("pid");
+    var name       = document.getElementById("name");
+    var desc       = document.getElementById("desc");
+    var imgsrc     = document.getElementById("imgsrc");
+    var price      = document.getElementById("price");
+    var qty_avail  = document.getElementById("qty_avail");
+    var status     = document.getElementById("status");
+    if (!storeProductExistsInStore(product_id))
+    {
+        console.log("Product is NOT in the store already");
+        alert("Product is NOT in the store already");
+        spid.innerHTML    = "";
+        sid.innerHTML     = "";
+        pid.innerHTML     = "";
+        name.innerHTML    = "";
+        desc.innerHTML    = "";
+        imgsrc.innerHTML  = "";
+        price.value       = 0;
+        qty_avail.value   = 0;
+        status.value      = 0;
+        // show/hide buttons
+        setElementByIdDisplay("createstoreproduct","none");
+        setElementByIdDisplay("updatestoreproduct","none");
+    }
+    else
+    {
+        console.log("Product can be modified in the store!");
+        var productEntity  = productsArray[product_id];
+        spid.innerHTML     = storeProduct_id;
+        sid.innerHTML      = store_id;
+        pid.innerHTML      = productEntity[9];  //or product_id
+        name.innerHTML     = productEntity[2];
+        desc.innerHTML     = productEntity[3];
+        imgsrc.innerHTML   = productEntity[4];
+        price.value        = elmchildren[6].innerHTML;
+        qty_avail.value    = elmchildren[7].innerHTML;
+        status.value       = elmchildren[8].innerHTML;
+
+        // show/hide buttons
+        setElementByIdDisplay("createstoreproduct","none");
+        setElementByIdDisplay("updatestoreproduct","block");
+    }
+  }
+  else
+  {
+    alert("Select a store before selecting a product.");
+  }
 }
 
 function storeProductExistsInStore(pid)
@@ -368,25 +458,25 @@ function storeProductExistsInStore(pid)
 
 function createStoreProduct() 
 {
-    console.log("Starting createStoreProduct() javascript method...");
-    console.log("Creating storeproduct");
-    setStatus("Creating, please wait.", "warning");
-    showSpinner();
+  console.log("Starting createStoreProduct() javascript method...");
+  console.log("Creating storeproduct");
+  setStatus("Creating, please wait.", "warning");
+  showSpinner();
 
-    // use web3 current account to paying for transaction and set gaslimit for transaction
-    account = accounts[0];
-    var gaslimit = 500000;
+  // use web3 current account to paying for transaction and set gaslimit for transaction
+  account = accounts[0];
+  var gaslimit = 500000;
 
-    // gather page fields for contract call
-    let storerow  = document.querySelector('.selected');
-    let sid       = storerow.getAttribute('data-key');
-    var pid       = document.getElementById("pid").innerHTML;
-    var price     = document.getElementById("price").value;
-    var qty_avail = document.getElementById("qty_avail").value;
-    var status    = document.getElementById("status").value;
-    console.log("New StoreProduct (sid:"+sid+", pid:"+pid+", price:"+price+", qty_avail:"+qty_avail+", status:"+status+")");
-    console.log("About to call createStoreProduct on contract...");
-	MarketPlaceContract.createStoreProduct(sid, pid, price, qty_avail, {from: account, gas: gaslimit}).then(function(txId) 
+  // gather page fields for contract call
+  let storerow  = document.querySelector('.selected');
+  let sid       = storerow.getAttribute('data-key');
+  var pid       = document.getElementById("pid").innerHTML;
+  var price     = document.getElementById("price").value;
+  var qty_avail = document.getElementById("qty_avail").value;
+  var status    = document.getElementById("status").value;
+  console.log("New StoreProduct (sid:"+sid+", pid:"+pid+", price:"+price+", qty_avail:"+qty_avail+", status:"+status+")");
+  console.log("About to call createStoreProduct on contract...");
+	MarketPlaceContract.createStoreProduct(sid, pid, price, qty_avail, status, {from: account, gas: gaslimit}).then(function(txId) 
 	{
     console.log("Back from MarketPlace.createStoreProduct...");
 		console.log(txId);
@@ -401,4 +491,38 @@ function createStoreProduct()
         hideSpinner();
 	});
   console.log("Exiting createStoreProduct() javascript method...");
+};
+
+function updateStoreProduct() 
+{
+  console.log("Updating StoreProduct");
+  setStatus("Updating, please wait.", "warning");
+  showSpinner();
+
+  // use web3 current account to paying for transaction and set gaslimit for transaction
+  account = accounts[0];
+  var gaslimit = 500000;
+
+  // gather page fields for contract call
+  let spid      = document.getElementById("spid").innerHTML;
+  let sid       = document.getElementById("sid").innerHTML;
+  var pid       = document.getElementById("pid").innerHTML;
+  var price     = document.getElementById("price").value;
+  var qty_avail = document.getElementById("qty_avail").value;
+  var status    = document.getElementById("status").value;
+  console.log("Update StoreProduct (spid:"+spid+", sid:"+sid+", pid:"+pid+", price:"+price+", qty_avail:"+qty_avail+", status:"+status+")");
+	MarketPlaceContract.updateStoreProduct(spid, sid, pid, price, qty_avail, status, {from: account, gas: gaslimit}).then(function(txId) 
+	{
+    console.log("Back from MarketPlace.updateStoreProduct...");
+		console.log(txId);
+    if (txId["receipt"]["gasUsed"] == 500000) 
+    {
+        setStatus("Update failed", "error");
+    }
+    else
+    {
+        setStatus("Updated<br>gasUsed: <b>"+txId["receipt"]["gasUsed"]+ "</b><br>tx: <b>" + txId["tx"]+"</b>");
+    }
+    hideSpinner();
+	});
 };

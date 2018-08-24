@@ -1,0 +1,17 @@
+[
+  {
+  	"username":"Owner0",
+    "usertype":"1",
+	"amount":"1"
+   },
+  {
+    "username":"Owner1",
+    "usertype":"1",
+	"amount":"1"
+  },
+  {
+    "username":"Owner2",
+    "usertype":"1",
+	"amount":"1"
+  }
+]

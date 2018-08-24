@@ -36,7 +36,7 @@
     <main>
         <div class="page" id="store-list">
             <header>
-              <h4>Your Stores</h4>
+              <h4>A. Your Stores</h4>
             </header>
             <main>
                 <table class="table table-striped">
@@ -54,7 +54,7 @@
 
         <div class="page" id="storeProduct-list">
           <header>
-              <h4>Products in Store</h4>
+              <h4>B. Products in Store</h4>
           </header>
           <main>
             <table class="table table-striped">
@@ -71,9 +71,10 @@
                     <th>Status</th>
                   </tr>
               </thead>
-              <tbody class="storeProduct-list"></tbody>
+              <tbody class="storeProduct-list">
+                <tr><td colspan=9>Choose a Store</td></tr>
+              </tbody>
             </table>
-            <!-- <p id="storeProductAdd" class="storeProductAdd"></p> -->
           </main>
         </div>
     </main>
@@ -81,7 +82,7 @@
     <main>
       <div class="page" id="product-list">
         <header>
-            <h4>Products</h4>
+            <h4>C. Your Products</h4>
         </header>
         <main>
           <table class="table table-striped">
@@ -99,8 +100,12 @@
       </div>
 
       <div class="page" id="storeProductInput">
+        <header>
+            <h4>D. Store Product</h4>
+        </header>
         <table class="marketDetails">
-
+          <p style="display: none;" id="spid"></p> <!-- hidden fields -->
+          <p style="display: none;" id="sid"></p>
           <tr>
               <td class="marketLabel"><label for="pid">Product Id:</label></td>
               <td><p id="pid"></p></td>
@@ -136,8 +141,9 @@
           </tr>
           <tr>
             <td class="marketLabel">&nbsp;</td>
-            <td
-              ><button id="createstoreproduct" onclick="createStoreProduct()"> Add Product </button>
+            <td>
+              <button id="createstoreproduct" onclick="createStoreProduct()">&nbsp;Create Store Product&nbsp;</button>
+              <button id="updatestoreproduct" onclick="updateStoreProduct()">&nbsp;Update Store Product&nbsp;</button>
             </td>
           </tr>
         </table>

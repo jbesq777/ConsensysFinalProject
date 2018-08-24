@@ -11,6 +11,7 @@ var products;
 var productsArray = [];
 var storeProducts;
 var storeProductsArray = [];
+var allStoreProductArray = [];
 var users;
 var usersArray = [];
 var currentBlockNumber;
@@ -243,12 +244,19 @@ function getUrlParameter(name) {
 function getContractOwner()
 {
   console.log("Getting contract owner...");
-  MarketPlaceContract.getOwner.call().then(function(address)
+  MarketPlaceContract.owner.call().then(function(address)
   {
     return address;
   });
 };
 
+function setElementByIdDisplay(id, targetDisplay)
+{
+  var x = document.getElementById(id);
+  if (x.style.display != targetDisplay) {
+    x.style.display = targetDisplay;
+  }
+}
 
 $(function() 
 {
