@@ -30,13 +30,13 @@ The MarketPlace.sol is in the /contracts directory
 
 Truffle compile will compile contracts
 
-\&gt;truffle compile
+>truffle compile
 
 Migration contract and migration scripts work as follows:
 
 **Use ganache-cli to start private blockchain**
 
-\&gt;ganache-cli
+>ganache-cli
 
 Ganache CLI v6.1.6 (ganache-core: 2.1.5)
 
@@ -114,7 +114,7 @@ Listening on 127.0.0.1:8545
 
 will migrate contracts to a locally running ganache-cli test blockchain on port 8545
 
-\&gt;truffle deploy
+>truffle deploy
 
 truffle deploy
 
@@ -154,7 +154,7 @@ All tests are in tests directory
 
 Running truffle test will migrate contracts and run the tests
 
-\&gt;truffle test
+>truffle test
 
 Using network &#39;development&#39;.
 
@@ -184,11 +184,11 @@ Compiling truffle/DeployedAddresses.sol...
 
     1) testSellProduct
 
-    \&gt; No events were emitted
+    > No events were emitted
 
     2) testWithdraw
 
-    \&gt; No events were emitted
+    > No events were emitted
 
 
 
@@ -214,11 +214,11 @@ Compiling truffle/DeployedAddresses.sol...
 
 **Run npm dev**
 
-\&gt;npm run dev
+>npm run dev
 
-\&gt; marketplace@1.0.0 dev C:\Users\jbambara\Documents\GitHub\marketplace
+> marketplace@1.0.0 dev C:\Users\jbambara\Documents\GitHub\marketplace
 
-\&gt; lite-server
+> lite-server
 
 \*\* browser-sync config \*\*
 
