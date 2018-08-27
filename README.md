@@ -12,7 +12,7 @@ Marketplace is a distributed application initialized by an administrator which a
 
 In a more real-world version the stores, the products and other data would be stored off the chain as it would create a scaling issue. The Ethereum contract would persist the Administrator, owner and shopper addresses and amount of tokens for each address in the application. That said we used Solidity to create and persist all of the contract entities. That said in the application store owners can create one or more stores. For each store, the owner can create and add products. Users (shoppers logged in to a MetaMask account ) of the distributed application are initially shown a list of stores and their description. They can then choose a store and see a list of the products available in that store. Shoppers can then choose to purchase a product. When they purchase a product, an order is created the product quantity available is decreased and the shopper&#39;s account will be debited by the price of that item. The store owner&#39;s account will be credited for the price of that item.
 
-![MarketPlace1](blob/master/marketplaceBOM.png)
+![MarketPlaceBOM](blob/master/marketplaceBOM.png)
 
 
 
@@ -254,11 +254,13 @@ You should see this screen localhost:3000
 
 ![MarketPlace1](marketplace1.png)
 
-![MarketPlace2](marketplace2.png)
-
-
-
 Click on Import using account seed phrase and use the Mnemonic from ganache-cli:
+
+![MarketPlace1A](marketplace1A.png)
+
+
+
+
 
     sort today prevent fiction shove bitter lawn erupt adult type recall hold
 
