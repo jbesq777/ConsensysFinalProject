@@ -12,6 +12,7 @@ var productsArray = [];
 var storeProducts;
 var storeProductsArray = [];
 var allStoreProductArray = [];
+var uType;
 var users;
 var usersArray = [];
 var currentBlockNumber;
@@ -66,19 +67,96 @@ function getContract()
 
 function callCommonFunctions()
 {
-  updateNetworkInfo();
-  updateBlockNumber();
-  // call page specific functions
-  callFunctions();
+  watchEvents();
+  account = accounts[0];
+
+  MarketPlaceContract.getUserType.call(account).then(function(userType)
+  {
+    uType = userType;
+    console.log("Address is: " + account + ", uType = "+ uType + ", userType = "+ userType);
+
+    if(window.location.href.endsWith("index.html") || window.location.href.endsWith("/"))
+    {
+      buildHomeMenu();
+    }
+    updateNetworkInfo();
+    updateBlockNumber();
+    // call page specific functions
+    callFunctions();
+  });
+
 };
+
+function buildHomeMenu()
+{
+  var usertype = document.getElementById("usertype");
+  var navbarlist = document.getElementById("navbarlist");
+  navbarlist.innerHTML = "";
+  let df = document.createDocumentFragment();
+
+  if (uType == 0)
+  {
+    // Admin menu
+    appendMenuListItem(df, "userlist.html", "Users");
+    usertype.innerHTML = "Admin";
+  }
+  else if (uType == 1)
+  {
+    // Owner menu
+    appendMenuListItem(df, "storelist.html", "Stores");
+    appendMenuListItem(df, "productlist.html", "Products");
+    appendMenuListItem(df, "storeproductlist.html", "Store Products");
+    usertype.innerHTML = "Owner";
+  }
+  else
+  {
+    // Shopper menu
+    appendMenuListItem(df, "register.html", "Register");
+    appendMenuListItem(df, "shopping.html", "Shopping");
+    usertype.innerHTML = "Shopper";
+  }
+
+  navbarlist.appendChild(df);
+}
+
+function appendMenuListItem(df, link, text)
+{
+  // create list item
+  let li = document.createElement('li');
+  // create anchor
+  let a = document.createElement('a');
+  // set anchor text
+  a.textContent = text;
+  // set anchor link
+  a.href = link;
+  // add anchor to list item
+  li.appendChild(a);
+  // add list item to document fragment
+  df.appendChild(li)
+}
 
 function updateNetworkInfo()
 {
-    // var owner = document.getElementById("owner");
-    // if (owner)
-    // {
-    //   owner.innerHTML = getContractOwner();
-    // }
+    var userElem = document.getElementById("user");
+    if (userElem)
+    {
+      if (uType == 0)
+      {
+        userElem.innerHTML = "Admin";
+      }
+      else if (uType == 1)
+      {
+        userElem.innerHTML = "Owner";
+      }
+      else if (uType = 2)
+      {
+        userElem.innerHTML = "Shopper";
+      }
+      else
+      {
+        userElem.innerHTML = "Unknown";
+      }
+    }
     var address = document.getElementById("address");
     if (address)
     {

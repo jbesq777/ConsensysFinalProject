@@ -10,49 +10,41 @@
     <link href="css/app.css" rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   </head>
-
   <body id="homepageBody">
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="index.html">MarketPlace</a>
-      </div>
-
-      <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="index.html">MarketPlace</a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="userlist.html">Users</a></li>
-            <li><a href="storelist.html">Stores</a></li>
-            <li><a href="productlist.html">Products</a></li>
-            <li><a href="storeproductlist.html">Store Products</a></li>
-            <li><a href="shopping.html">Shopping</a></li>
-            </ul>
-          </div>
         </div>
-      </nav>
-
-        
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="index.html">MarketPlace</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul id="navbarlist" class="nav navbar-nav">
+              </ul>
+            </div>
+          </div>
+        </nav>
       </div>
     </nav>
     <div class="row" id="headerRow">
       <div>
         <img src="images/logo.png" alt="MarketPlace" id="heroImage">
-        <div id="headerLabel"><h1>A Decentralized Marketplace</h1></div>
+        <div id="headerLabel"
+          ><h1>A Decentralized Marketplace</h1>
+        </div>
+        <p id="usertype">Contract has not been deployed</p>
       </div>
     </div>
     <div class="row" id="headerRow">
-      <!-- <h1>This homepage lists the marketplace links</h1> -->
       <h2>MarketPlace is a decentralized application (Dapp)<br>that lets users purchase goods without a middleman.</h2>
     </div>
     <script src="js/jquery.min.js"></script>

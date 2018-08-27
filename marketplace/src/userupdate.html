@@ -48,7 +48,6 @@
             </tr>
             <tr>
               <td class="marketLabel"><label for="usertype">User Type:</label></td>
-              <!-- <td><input type="text" id="user.type" placeholder="User Type"></input></td> -->
               <td>
                 <select id="user.type" name="usertype" placeholder="User Type">
                 <option value="0">Admin</option>
@@ -61,10 +60,18 @@
                 <td class="marketLabel"><label for="address">Address:</label></td>
                 <td><p id="user.address"></p></td>
             </tr>
-      
             <tr>
               <td class="marketLabel"><label for="amount">Amount in Ether:</label></td>
               <td><p id="user.amount"></p></td>
+            </tr>
+            <tr>
+              <td class="marketLabel"><label for="userstatus">User Status:</label></td>
+              <td>
+                <select id="user.status" name="userstatus" placeholder="User Status">
+                <option value="0">Enabled</option>
+                <option value="1">Disabled</option>
+                </select>
+              </td>
             </tr>
             <tr><td class="marketLabel">&nbsp;</td><td><button id="updateuser" onclick="updateUser()">Update user</button></td>
             </tr>

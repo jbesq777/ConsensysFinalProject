@@ -24,7 +24,7 @@ contract MarketPlace is Ownable {
     // creating this contract.
     //
         owner = msg.sender;
-        createUser(msg.sender, "Admin", 0, 0);
+        createUser(msg.sender, "Admin", 0, 0, 0);
         emit log("owner = msg.sender");
     }
 
@@ -50,8 +50,10 @@ contract MarketPlace is Ownable {
         string username;
         userType usertype;
         uint256 amount;
+        userStatus userstatus;
     }
-    enum userType {Admin, Owner, Shopper}
+    enum userType {Admin, Owner}
+    enum userStatus {Enabled, Disabled}
 
     // define store entity
     struct store
@@ -123,8 +125,8 @@ contract MarketPlace is Ownable {
     // list all of the events and what we need to know about them
     event throwError(string message);
     event log(string message);
-    event userCreated(uint uid, address user, string username, uint8 usertype, uint256 amount, uint timestamp);
-    event userUpdated(uint uid, string username, uint8 usertype, uint timestamp);
+    event userCreated(uint uid, address user, string username, uint8 usertype, uint256 amount, uint8 userstatus, uint timestamp);
+    event userUpdated(uint uid, string username, uint8 usertype, uint8 userstatus, uint timestamp);
     event storeCreated(uint sid, address owner, string name, string description, uint256 amount, uint timestamp);
     event storeUpdated(uint sid, string name, string description, uint timestamp);
     event productCreated(uint pid, address owner, string name, string description, string imgsrc);
@@ -137,38 +139,85 @@ contract MarketPlace is Ownable {
     // The BOM includes users: Admins and Store Owners
     //                  stores, products and orders
 
-    function createUser( address _user, string _username, uint8 _usertype, uint256 _amount) public returns (uint id)
+    function createUser( address _user, string _username, uint8 _usertype, uint256 _amount, uint8 _userstatus) public returns (uint id)
     {
-        id = users.length++;
-        user storage newUser = users[id];
-        newUser.user = _user;
-        newUser.usertype = userType(_usertype);
-        newUser.username = _username;
-        newUser.uid = id;
-        newUser.amount = _amount;
-        UserOwnerMap[newUser.user].push(id);
-        emit userCreated(id, newUser.user, newUser.username, (uint8)(newUser.usertype), newUser.amount, now);
-        return id;
+        if (UserOwnerMap[_user].length > 0)
+        {
+            revert("This address is already a registered user.");
+        }
+        else
+        {
+            id = users.length++;
+            user storage newUser = users[id];
+            newUser.user = _user;
+            newUser.usertype = userType(_usertype);
+            newUser.username = _username;
+            newUser.uid = id;
+            newUser.amount = _amount;
+            newUser.userstatus = userStatus(_userstatus);
+            UserOwnerMap[newUser.user].push(id);
+            emit userCreated(id, newUser.user, newUser.username, (uint8)(newUser.usertype), newUser.amount, (uint8)(newUser.userstatus), now);
+            return id;
+        }
     }
 
-    function updateUser( uint _uid, string _username, uint8 _usertype)
+    function updateUser( uint _uid, string _username, uint8 _usertype, uint8 _userstatus)
         public returns (bool success)
     {
-        /* Only allow changes to usertype */
+        /* Only allow changes to usertype and userstatus */
         users[_uid].usertype = userType(_usertype);
-        emit userUpdated(_uid, _username, (uint8)(_usertype), now);
+        users[_uid].userstatus = userStatus(_usertype);
+        emit userUpdated(_uid, _username, (uint8)(_usertype), (uint8)(_userstatus), now);
         return true;
     }
 
-    function getUser(uint idx) public view returns (uint, address, string, uint8, uint256)
+    function getUser(uint idx) public view returns (uint, address, string, uint8, uint256, uint8)
     {
         user memory temp = users[idx];
-        return (temp.uid, temp.user, temp.username, uint8(temp.usertype), temp.amount);
+        return (temp.uid, temp.user, temp.username, uint8(temp.usertype), temp.amount, uint8(temp.userstatus));
+    }
+
+    function getUserType(address adr) public view returns (uint8)
+    {
+        uint8 utype = 2;
+        uint arrayLength = users.length;
+
+        for (uint i = 0; i < arrayLength; i++) {
+            user memory temp = users[i];
+            if (temp.user == adr) {
+                utype = uint8(temp.usertype);
+            }
+        }
+        return (utype);
+    }
+
+    function getUserByAddress(address adr) public view returns (uint, address, string, uint8, uint256, uint8)
+    {
+        uint arrayLength = users.length;
+        user memory temp;
+        temp.user = adr;
+        temp.username = "N/A";
+        temp.usertype = userType(2);     // Shopper
+        temp.amount = 0;
+        temp.userstatus = userStatus(1); // Disabled
+
+        for (uint i = 0; i < arrayLength; i++) {
+            user memory temp2 = users[i];
+            if (temp2.user == adr) {
+                temp = users[i];
+            }
+        }
+        return (temp.uid, temp.user, temp.username, uint8(temp.usertype), temp.amount, uint8(temp.userstatus));
     }
 
     function getUserCount() public view returns (uint)
     {
         return users.length;
+    }
+
+    function register(address _user, string _username) public returns (uint id)
+    {
+        return createUser(_user, _username, 1, 0, 0);
     }
 
     function createStore( address _owner, string _name, string _description, uint256 _amount ) public returns (uint id)
@@ -336,27 +385,27 @@ contract MarketPlace is Ownable {
 
     function createOrder( address _owner, uint _sid, uint _spid, uint _pid, uint256 _price, uint256 _qty) public returns (uint id)
     {
-        log0("createOrder #1");
+        // emit log("createOrder #1");
         id = orders.length++;
-        log0("createOrder #2");
+        // emit log("createOrder #2");
         order storage newOrder = orders[id];
-        log0("createOrder #3");
+        // emit log("createOrder #3");
         newOrder.sid = _sid;
-        log0("createOrder #4");
+        // emit log("createOrder #4");
         newOrder.spid = _spid;
-        log0("createOrder #5");
+        // emit log("createOrder #5");
         newOrder.pid = _pid;
-        log0("createOrder #6");
+        // emit log("createOrder #6");
         newOrder.oid = id;
-        log0("createOrder #7");
+        // emit log("createOrder #7");
         newOrder.price = _price;
-        log0("createOrder #8");
+        // emit log("createOrder #8");
         newOrder.qty = _qty;
-        log0("createOrder #9");
+        // emit log("createOrder #9");
         OrderOwnerMap[_owner].push(id);
-        log0("createOrder #10");
+        // emit log("createOrder #10");
         emit orderCreated(id, newOrder.sid, newOrder.spid, newOrder.pid, newOrder.price, newOrder.qty);
-        log0("createOrder #11");
+        // emit log("createOrder #11");
         return id;
     }
     
@@ -374,49 +423,50 @@ contract MarketPlace is Ownable {
     function sellProduct(uint sid, uint spid, uint pid, uint qty) public payable returns (uint)
     {
         // ensure store product id is within array boundary 
-        log0("sellProduct #1");
-        require(spid >= 0 && spid <= storeproducts.length, "store product id does not exist");
+        // emit log("sellProduct #1");
+        // require(spid >= 0 && spid <= storeproducts.length, "store product id does not exist");
         // get store product
-        log0("sellProduct #2");
+        // emit log("sellProduct #2");
         storeproduct memory temp = storeproducts[spid];
         // ensure store id matches 
-        log0("sellProduct #3");
-        require (temp.sid == sid, "store id does not match");
+        // emit log("sellProduct #3");
+        // require (temp.sid == sid, "store id does not match");
         // ensure at least 1 available 
-        log0("sellProduct #4");
-        require (temp.qty_avail > 0, "insufficient inventory of store product");
+        // emit log("sellProduct #4");
+        // require (temp.qty_avail > 0, "insufficient inventory of store product");
         // calculate transaction amount
-        log0("sellProduct #5");
+        // emit log("sellProduct #5");
         uint transAmount = qty * storeproducts[spid].price;
         // ensure buyer has sufficient funds 
-        log0("sellProduct #6");
-        require (balance[msg.sender] >= transAmount, "buyer has insufficient funds");
+        // emit log("sellProduct #6");
+        // require (balance[msg.sender] >= transAmount, "buyer has insufficient funds");
         // decrease inventory by 1
-        log0("sellProduct #7");
+        // emit log("sellProduct #7");
         storeproducts[spid].qty_avail -= 1;
         // decrease buyers wallet by transaction amount
-        log0("sellProduct #8");
+        // emit log("sellProduct #8");
         balance[msg.sender].sub(transAmount);
         // increase store amount by transaction amount
-        log0("sellProduct #9");
+        // emit log("sellProduct #9");
         stores[sid].amount.add(transAmount);
-        /**
-        
-    */
         // create the order
-        log0("sellProduct #10");
+        // emit log("sellProduct #10");
         return createOrder(msg.sender, sid, spid, pid, temp.price, qty);
     }                       
 
     function withdraw(uint sid, uint256 amount) public payable returns (bool success)
     {
         // ensure message is from store owner
+        // emit log("withdraw #1");
         require(stores[sid].owner == msg.sender, "must be owner of store");
         // ensure store has requested funds
+        // emit log("withdraw #2");
         require(stores[sid].amount >= amount, "amount greater than store value");
         // decrease stores wallet by transaction amount
+        // emit log("withdraw #3");
         stores[sid].amount.sub(amount);
         // increase callers wallet by transaction amount
+        // emit log("withdraw #4");
         balance[msg.sender].add(amount);
         return true;
     }
