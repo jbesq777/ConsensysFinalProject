@@ -8,7 +8,7 @@ Description: Create an online marketplace that operates on the blockchain
 
 **What does the Marketplace project do?**
 
-Marketplace is a distributed application initialized by an administrator which allows storeowners to create stores and add products to those stores for sale by users. When the contract is started an initial ADMIN is created. In the marketplace contract there is a bill of materials which is represented by Solidity structures which include users, stores, store products and orders.
+Marketplace is a distributed application initialized by an administrator which allows storeowners to create stores and add products to those stores for sale by users. When the contract is started an initial ADMIN is created.Visitors to the site must logon to a METAMASK account and then are asked to Register or Shop. Owners can then register and be ENABLED by the ADMIN user (in this case MetaMask Account 1). Shoppers will be shown stores from which they can shop. In the marketplace contract there is a bill of materials which is represented by Solidity structures which include users, stores, store products and orders.
 
 In a more real-world version the stores, the products and other data would be stored off the chain as it would create a scaling issue. The Ethereum contract would persist the Administrator, owner and shopper addresses and amount of tokens for each address in the application. That said we used Solidity to create and persist all of the contract entities. That said in the application store owners can create one or more stores. For each store, the owner can create and add products. Users (shoppers logged in to a MetaMask account ) of the distributed application are initially shown a list of stores and their description. They can then choose a store and see a list of the products available in that store. Shoppers can then choose to purchase a product. When they purchase a product, an order is created the product quantity available is decreased and the shopper&#39;s account will be debited by the price of that item. The store owner&#39;s account will be credited for the price of that item.
 
@@ -276,29 +276,22 @@ Available Accounts
 
 (4) 0x7d3c85a5eba11b98e510fcc7b1adcff73c5018e5 (~100 ETH)
 
-![MarketPlace3](marketplace3.png)
-
- Click on Users to see ADMIN user created by MarketPlace contract constructor
-
-![MarketPlace4](marketplace4.png)
-
-Logon as Account2
-
-![MarketPlace5](marketplace5.png)
-
-![MarketPlace6](marketplace6.png)
-
-
-
-Logon as Account 3
-
-![MarketPlace7](marketplace7.png)
+Logon as MetaMask Account 2 - No)
+You can choose to be an Owners or a Shoppers
+Owners can register and be ENABLED or DISABLED by the ADMIN user METAMASK Account 1
+Shoppers will be shown stores and can then choose a store and shop for products
+![MarketPlace0](marketplace0A.png)
+![MarketPlace0A](marketplace0A.png)
+![MarketPlace1A](marketplace1A.png)
+![MarketPlace2A](marketplace2A.png)
+![MarketPlace3B](marketplace3B.png)
+![MarketPlace4A](marketplace4A.png)
 
 
 
-Display the Users
 
-![MarketPlace8](marketplace8.png)
+
+
 
 Logon as each Owner (switch MetaMask Account) and  Create/Display Stores
 
