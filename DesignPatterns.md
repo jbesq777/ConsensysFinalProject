@@ -2,6 +2,69 @@
 
 The marketplace application considered and used a number of Ethereum design patterns. We will list them in detail below.
 
+**Contract Modifiers**
+ Solidity function modifiers when added to a function body extend it, allowing us to abstract parts of our code and write functions with fewer conditionals checks intertwined with state changes.
+
+Creating a function modifier
+The syntax looks similar to declaring a function, except it uses the modifier keyword. The underscore on indicates how the original function is changed:
+
+modifier assertValueIsOne(uint value) {
+  assert(value == 1);
+  _; // original function goes at this point
+}
+function doSomething(uint value)
+  assertValueIsOne(value)
+{
+}
+Use cases
+Checking for invariants or conditions using require, revert (throw is deprecated, see more here) or assert accordingly:
+
+// For parameterless modifiers, we can omit parenthesis
+modifier isAllowed { 
+  assert(msg.sender == owner); // contract state
+  _;
+}
+modifier isValidAddress(address target) {
+  require(target != 0x0);
+  _;
+}
+modifier isValueBiggerThanZero(uint value) {
+  require(value > 0);
+  _;
+}
+function isOwner(address target) constant returns (bool) {
+  return target == owner;
+}
+function simpleFunction(address target)
+  isValidAddress(target)
+  isValueBiggerThanZero(msg.value)
+  isAllowed // omitted parenthesis for parameterless modifiers
+  payable
+{
+    // do something
+}
+Please note that modifiers are applied to the original function in the order they are presented on the function declaration, i.e: isValidAddress, isValueBiggerThanZero, isAllowed and then payable.
+Checking for msg.sender permissions:
+
+modifier isOwner {
+  assert(owner == msg.sender);
+  _;
+}
+function finalize() isOwner {
+  finalized = true;
+}
+Raising events before or after a function is called:
+
+event StartEvent();
+event FinishEvent();
+modifier logEvents {
+  StartEvent();
+  _;
+  FinishEvent();
+}
+function toggle () logEvents {
+}
+
 **Contract Self Destruction**
 
 Marketplace uses the **Contract Self Destruction pattern for** terminating the Marketplace contract, This means removing it  **forever**  from the blockchain. Once destroyed, it&#39;s not possible to invoke functions on the contract and no transactions will be logged in the ledger. Solidity&#39;s selfdestruct does two things.
@@ -11,13 +74,20 @@ Marketplace uses the **Contract Self Destruction pattern for** terminating the M
 
 The function destroyContract() is responsible for the destruction.
 
-function destroyContract() external ownerRestricted {
-
-        selfdestruct(owner);
-
-    }
 
 The ownerRestricted modifier was used to only allow the owner of the contract to destroy it and have all of the funds transferred to the Owners account.
+
+modifier ownerRestricted {
+        require(owner == msg.sender, "restricted feature");
+        _;
+        // the "_;"!  will
+        // be replaced by the actual function
+        // body when the modifier is used.
+    } 
+
+    function destroyContract() external ownerRestricted {
+        selfdestruct(owner);
+    }
 
 The Contract Self Destruction pattern is used for terminating a contract, which means removing it forever from the blockchain. Once destroyed, it&#39;s not possible to invoke functions on the contract and no transactions will be logged in the ledger. This pattern is used for things like dealing with timed contracts or contracts that must be terminated once a milestone has been reached. Here are important noted  when dealing with a contract that has been destroyed:
 
