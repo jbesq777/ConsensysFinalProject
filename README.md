@@ -24,6 +24,11 @@ MarketPlace is a truffle project.
 
 Note: when using WINDOWS change truffle.js to truffle-config.js
 
+You must download the nodes-modules directory from the github directory
+
+You must install it with npm install -E openzeppelin-solidity
+
+
 The MarketPlace.sol is in the /contracts directory
 
 **Truffle compile**
