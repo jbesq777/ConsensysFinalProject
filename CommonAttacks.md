@@ -37,9 +37,9 @@ function transfer(address _to, uint256 _value) {
     /* Check if sender has balance and for overflows */
     require(balanceOf[msg.sender] >= _value && balanceOf[_to] + _value >= balanceOf[_to]);
 
-    /* Add and subtract new balances */
-    balanceOf[msg.sender] -= _value;
-    balanceOf[_to] += _value;
+    /* Add and subtract new balances * use SafeMath functionality/
+    balanceOf[msg.sender].sub(_value);
+    balanceOf[_to].add(_value);
 }
 If a balance reaches the maximum uint value (2^256) it will circle back to zero. This checks for that condition. This may or may not be relevant, depending on the implementation. Think about whether or not the uint value has an opportunity to approach such a large number. Think about how the uint variable changes state, and who has authority to make such changes. If any user can call functions which update the uint value, it's more vulnerable to attack. If only an admin has access to change the variable's state, you might be safe. If a user can increment by only 1 at a time, you are probably also safe because there is no feasible way to reach this limit. The same is true for underflow. If a uint is made to be less than zero, it will cause an underflow and get set to its maximum value.
 Underflow in Depth: Storage Manipulation
@@ -59,7 +59,7 @@ contract UnderflowManipulation {
 
     function popBonusCode()  {
         require(bonusCodes.length >=0);  // this is a tautology
-        bonusCodes.length--; // an underflow can be caused here
+        bonusCodes.length.sub(1); // an underflow can be caused here
     }
 
     function modifyBonusCode(uint index, uint update)  { 
@@ -83,7 +83,7 @@ uint[] public array;
     function pop() public {
         // This is a possible fix to avoid underflows
         require(array.length > 0);
-        array.length--;
+        array.length.sub(1);
     }
 
 
